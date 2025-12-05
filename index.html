@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Devdecks</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Unbounded:wght@200;300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+              display: ['Unbounded', 'sans-serif'],
+              header: ['"Inter"', 'sans-serif'],
+            },
+            colors: {
+              primary: {
+                50: '#fff7ed',
+                100: '#ffedd5',
+                200: '#fed7aa',
+                300: '#fdba74',
+                400: '#fb923c',
+                500: '#f97316', // Orange-500
+                600: '#ea580c', // Orange-600
+                700: '#c2410c',
+                900: '#7c2d12',
+              }
+            },
+            borderRadius: {
+                '3xl': '1.5rem',
+            },
+            animation: {
+                'fade-in': 'fadeIn 0.3s ease-in-out',
+                'slide-up': 'slideUp 0.4s ease-out',
+                'pulse-slow': 'pulse 3s infinite',
+                'border-beam': 'borderBeam 2s linear infinite',
+            },
+            keyframes: {
+                fadeIn: {
+                    '0%': { opacity: '0' },
+                    '100%': { opacity: '1' },
+                },
+                slideUp: {
+                    '0%': { transform: 'translateY(10px)', opacity: '0' },
+                    '100%': { transform: 'translateY(0)', opacity: '1' },
+                },
+                borderBeam: {
+                    '0%': { borderColor: 'rgba(249, 115, 22, 0.1)' },
+                    '50%': { borderColor: 'rgba(249, 115, 22, 0.6)' },
+                    '100%': { borderColor: 'rgba(249, 115, 22, 0.1)' },
+                }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      /* Hide scrollbar for Chrome, Safari and Opera */
+      .no-scrollbar::-webkit-scrollbar {
+          display: none;
+      }
+      /* Hide scrollbar for IE, Edge and Firefox */
+      .no-scrollbar {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+      }
+      
+      /* Global scrollbar hiding but keeping functionality */
+      ::-webkit-scrollbar {
+        width: 0px;
+        background: transparent;
+      }
+      html {
+        scrollbar-width: none;
+      }
+      
+      /* Utilities */
+      .glass-panel {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+      .dark .glass-panel {
+        background: rgba(9, 9, 11, 0.7);
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "recharts": "https://aistudiocdn.com/recharts@^3.5.1",
+    "react-dom/client": "https://aistudiocdn.com/react-dom@^19.2.0/client",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
+  }
+}
+</script>
+</head>
+  <body class="bg-[#F5F5F7] dark:bg-[#09090b] text-zinc-900 dark:text-zinc-50 antialiased overflow-hidden transition-colors duration-300">
+    <div id="root"></div>
+  </body>
+</html>
