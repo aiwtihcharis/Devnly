@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Sidebar from './components/Layout/Sidebar';
 import TopBar from './components/Layout/TopBar';
 import DashboardView from './components/Dashboard/DashboardView';
@@ -31,6 +32,9 @@ function App() {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [activeSlideId, setActiveSlideId] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
+  
+  // Project State for Persistence
+  const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
   
   const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -65,20 +69,18 @@ function App() {
       setCurrentView('dashboard');
   };
 
-  // Opens the creation choice modal
   const handleNewProjectRequest = () => {
     setShowCreateModal(true);
   };
 
-  // Starts Vora AI
   const startVoraAI = () => {
     setMessages([]);
     setSlides([]);
+    setCurrentProjectId(`proj-${Date.now()}`); // Generate ID
     setShowCreateModal(false);
     setCurrentView('generator');
   };
 
-  // Starts Manual Builder
   const startManualBuilder = () => {
     const initialSlide: Slide = {
         id: `slide-${Date.now()}`,
@@ -89,16 +91,34 @@ function App() {
     };
     setSlides([initialSlide]);
     setActiveSlideId(initialSlide.id);
+    setCurrentProjectId(`proj-${Date.now()}`); // Generate ID
     setShowCreateModal(false);
     setCurrentView('editor');
+    
+    // Create initial project in DB
+    MockFirebase.db.createProject({
+        id: `proj-${Date.now()}`,
+        title: 'Untitled Deck',
+        updatedAt: new Date(),
+        status: 'Draft',
+        thumbnailUrl: '',
+        slides: [initialSlide],
+        modelPreference: AIModelId.GEMINI_FLASH
+    });
   };
 
-  const handleOpenProject = (id: string) => {
-    setSlides([
-        { id: 's1', title: 'Q3 Review', elements: [{ id: 'e1', type: 'text', content: 'Q3 Financial Review', x: 10, y: 40, w: 80, h: 20, style: { fontSize: '40px', fontWeight: 'bold' }}] }
-    ]);
-    setActiveSlideId('s1');
-    setCurrentView('editor');
+  const handleOpenProject = async (id: string) => {
+    // In real app, fetch from Firestore here
+    const projects = await MockFirebase.db.getProjects();
+    const proj = projects.find(p => p.id === id);
+    if (proj) {
+        setSlides(proj.slides && proj.slides.length > 0 ? proj.slides : [
+             { id: 's1', title: 'Q3 Review', elements: [{ id: 'e1', type: 'text', content: 'Q3 Financial Review', x: 10, y: 40, w: 80, h: 20, style: { fontSize: '40px', fontWeight: 'bold' }}] }
+        ]);
+        setActiveSlideId(proj.slides?.[0]?.id || 's1');
+        setCurrentProjectId(id);
+        setCurrentView('editor');
+    }
   };
 
   const handleTemplateSelect = (template: Template) => {
@@ -112,6 +132,7 @@ function App() {
     }));
     setSlides(newSlides);
     setActiveSlideId(newSlides[0].id);
+    setCurrentProjectId(`proj-${Date.now()}`); // Generate ID
     setCurrentView('editor');
   };
 
@@ -163,21 +184,23 @@ function App() {
   // Full Screen Editor Mode
   if (currentView === 'editor') {
       return (
-          <Canvas 
-            slides={slides} 
-            activeSlideId={activeSlideId} 
-            onSlideSelect={setActiveSlideId}
-            onUpdateSlide={handleSlideUpdate}
-            onAddSlide={handleAddSlide}
-            onExit={() => setCurrentView('dashboard')}
-          />
+          <>
+            <Canvas 
+                slides={slides} 
+                activeSlideId={activeSlideId} 
+                onSlideSelect={setActiveSlideId}
+                onUpdateSlide={handleSlideUpdate}
+                onAddSlide={handleAddSlide}
+                onExit={() => setCurrentView('dashboard')}
+            />
+          </>
       );
   }
 
   return (
     <div className="flex h-screen w-screen font-sans p-4 gap-4 overflow-hidden relative">
       <div className="absolute inset-0 z-0 bg-gradient-to-br from-zinc-100 to-zinc-200 dark:from-zinc-950 dark:to-black pointer-events-none"></div>
-
+      
       {showOnboarding && <OnboardingView onComplete={handleOnboardingComplete} />}
 
       {/* Create Modal */}

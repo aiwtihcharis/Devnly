@@ -1,6 +1,7 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Slide, SlideElement } from '../../types';
-import { MoreVertical, GripVertical, Plus, Type, Image, Trash2, Move, BoxSelect, ArrowLeft, Download, Maximize, Wand2, Sparkles, X } from 'lucide-react';
+import { MoreVertical, GripVertical, Plus, Type, Image, Trash2, Move, BoxSelect, ArrowLeft, Download, Maximize, Wand2, Sparkles, X, FileJson, FileCode, Printer } from 'lucide-react';
 import { improveSlideContent } from '../../services/geminiService';
 
 interface CanvasProps {
@@ -18,6 +19,7 @@ const Canvas: React.FC<CanvasProps> = ({ slides, activeSlideId, onSlideSelect, o
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [aiLoading, setAiLoading] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
 
   const updateElement = (elId: string, updates: Partial<SlideElement>) => {
@@ -98,6 +100,50 @@ const Canvas: React.FC<CanvasProps> = ({ slides, activeSlideId, onSlideSelect, o
     const newText = await improveSlideContent(el.content, action);
     updateElement(selectedElementId, { content: newText });
     setAiLoading(false);
+  };
+
+  // Export Logic
+  const handleExport = (format: 'html' | 'md' | 'pdf') => {
+    if (format === 'html') {
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head><title>Presentation Export</title><style>body{font-family:sans-serif;}.slide{page-break-after:always;height:100vh;position:relative;border:1px solid #ccc;margin-bottom:20px;}.element{position:absolute;}</style></head>
+            <body>
+            ${slides.map(slide => `
+                <div class="slide">
+                    ${slide.elements.map(el => `
+                        <div class="element" style="left:${el.x}%;top:${el.y}%;width:${el.w}%;height:${el.h}%;${Object.entries(el.style || {}).map(([k,v]) => `${k.replace(/[A-Z]/g, m => "-"+m.toLowerCase())}:${v}`).join(';')};">
+                            ${el.content}
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('')}
+            </body>
+            </html>
+        `;
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'presentation.html';
+        a.click();
+    } else if (format === 'md') {
+        const mdContent = slides.map(slide => {
+            return `# ${slide.title}\n\n${slide.elements.map(el => el.type === 'text' ? el.content : '[Image Placeholder]').join('\n\n')}`;
+        }).join('\n\n---\n\n');
+        
+        const blob = new Blob([mdContent], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'presentation.md';
+        a.click();
+    } else if (format === 'pdf') {
+        // Use browser print for native PDF generation
+        window.print();
+    }
+    setShowExportMenu(false);
   };
 
   const renderElement = (el: SlideElement) => {
@@ -206,19 +252,38 @@ const Canvas: React.FC<CanvasProps> = ({ slides, activeSlideId, onSlideSelect, o
                 </div>
             )}
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 relative">
             <button className="text-xs bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 px-4 py-2 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700 font-bold font-header uppercase tracking-wider transition-colors flex items-center gap-2">
                 <Maximize size={14} /> Preview
             </button>
-            <button className="text-xs bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-4 py-2 rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 font-bold font-header uppercase tracking-wider shadow-lg transition-colors flex items-center gap-2">
+            
+            <button 
+                onClick={() => setShowExportMenu(!showExportMenu)}
+                className="text-xs bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-4 py-2 rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 font-bold font-header uppercase tracking-wider shadow-lg transition-colors flex items-center gap-2"
+            >
                 <Download size={14} /> Export
             </button>
+            
+            {showExportMenu && (
+                <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 origin-top-right z-50">
+                    <button onClick={() => handleExport('html')} className="w-full text-left px-4 py-3 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-200 flex items-center gap-3">
+                        <FileCode size={16} /> HTML File
+                    </button>
+                    <button onClick={() => handleExport('md')} className="w-full text-left px-4 py-3 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-200 flex items-center gap-3">
+                        <FileJson size={16} /> Markdown
+                    </button>
+                    <div className="h-px bg-zinc-100 dark:bg-zinc-800"></div>
+                    <button onClick={() => handleExport('pdf')} className="w-full text-left px-4 py-3 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-200 flex items-center gap-3">
+                        <Printer size={16} /> PDF / Print
+                    </button>
+                </div>
+            )}
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden">
-        {/* Slide Strip */}
-        <div className="w-56 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 overflow-y-auto p-4 space-y-4 no-scrollbar">
+      <div className="flex-1 flex overflow-hidden" id="slide-export-area">
+        {/* Slide Strip (Hidden during print) */}
+        <div className="w-56 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 overflow-y-auto p-4 space-y-4 no-scrollbar print:hidden">
             {slides.map((slide, idx) => (
                 <div 
                     key={slide.id}
@@ -243,24 +308,24 @@ const Canvas: React.FC<CanvasProps> = ({ slides, activeSlideId, onSlideSelect, o
 
         {/* Canvas */}
         <div 
-            className="flex-1 overflow-auto p-12 flex items-center justify-center bg-zinc-100 dark:bg-zinc-950 relative no-scrollbar"
+            className="flex-1 overflow-auto p-12 flex items-center justify-center bg-zinc-100 dark:bg-zinc-950 relative no-scrollbar print:p-0 print:bg-white"
             onMouseMove={handleCanvasMouseMove}
             onMouseUp={handleMouseUp}
             onClick={() => setSelectedElementId(null)}
         >
              {/* Dot Grid */}
-             <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'radial-gradient(#9ca3af 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+             <div className="absolute inset-0 opacity-[0.05] print:hidden" style={{ backgroundImage: 'radial-gradient(#9ca3af 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
 
             {activeSlide ? (
                 <div 
                     ref={canvasRef}
-                    className="relative w-full max-w-5xl aspect-video bg-white shadow-2xl rounded-sm ring-1 ring-zinc-900/5 select-none transition-transform duration-300"
+                    className="relative w-full max-w-5xl aspect-video bg-white shadow-2xl rounded-sm ring-1 ring-zinc-900/5 select-none transition-transform duration-300 print:shadow-none print:w-full print:h-full print:ring-0"
                     onClick={(e) => e.stopPropagation()}
                 >
                     {activeSlide.elements.map(renderElement)}
                 </div>
             ) : (
-                <div className="text-zinc-400 dark:text-zinc-500 flex flex-col items-center gap-4">
+                <div className="text-zinc-400 dark:text-zinc-500 flex flex-col items-center gap-4 print:hidden">
                     <p className="font-header text-sm font-bold uppercase tracking-widest">No Slide Selected</p>
                 </div>
             )}

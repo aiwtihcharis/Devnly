@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -39,6 +40,7 @@
                 'slide-up': 'slideUp 0.4s ease-out',
                 'pulse-slow': 'pulse 3s infinite',
                 'border-beam': 'borderBeam 2s linear infinite',
+                'shimmer': 'shimmer 2s linear infinite',
             },
             keyframes: {
                 fadeIn: {
@@ -53,6 +55,10 @@
                     '0%': { borderColor: 'rgba(249, 115, 22, 0.1)' },
                     '50%': { borderColor: 'rgba(249, 115, 22, 0.6)' },
                     '100%': { borderColor: 'rgba(249, 115, 22, 0.1)' },
+                },
+                shimmer: {
+                    '0%': { transform: 'translateX(-100%)' },
+                    '100%': { transform: 'translateX(100%)' }
                 }
             }
           }
@@ -88,6 +94,31 @@
       .dark .glass-panel {
         background: rgba(9, 9, 11, 0.7);
       }
+
+      /* Print Styles for PDF Export */
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        #slide-export-area, #slide-export-area * {
+          visibility: visible;
+        }
+        #slide-export-area {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          background: white;
+          padding: 0;
+          margin: 0;
+          overflow: visible;
+        }
+        @page {
+          size: landscape;
+          margin: 0;
+        }
+      }
     </style>
   <script type="importmap">
 {
@@ -99,7 +130,11 @@
     "react": "https://aistudiocdn.com/react@^19.2.0",
     "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
     "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
+    "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+    "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js",
+    "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "firebase/": "https://aistudiocdn.com/firebase@^12.6.0/"
   }
 }
 </script>
