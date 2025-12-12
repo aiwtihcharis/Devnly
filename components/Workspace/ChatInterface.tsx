@@ -1,12 +1,12 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Paperclip, Bot, User, Sparkles, ArrowUp } from 'lucide-react';
+import { Send, Paperclip, Bot, User, Sparkles, ArrowUp, Ratio } from 'lucide-react';
 import { AIModelId, ChatMessage } from '../../types';
 import ModelSelector from './ModelSelector';
 
 interface ChatInterfaceProps {
   messages: ChatMessage[];
-  onSendMessage: (text: string, model: AIModelId) => void;
+  onSendMessage: (text: string, model: AIModelId, config?: { aspectRatio: string }) => void;
   isTyping: boolean;
   renderEmptyState?: () => React.ReactNode;
 }
@@ -14,8 +14,22 @@ interface ChatInterfaceProps {
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMessage, isTyping, renderEmptyState }) => {
   const [input, setInput] = useState('');
   const [selectedModel, setSelectedModel] = useState<AIModelId>(AIModelId.GEMINI_FLASH);
+  const [aspectRatio, setAspectRatio] = useState('1:1');
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const isMediaModel = selectedModel === AIModelId.GEMINI_IMAGE || selectedModel === AIModelId.VEO;
+
+  const imageRatios = ["1:1", "2:3", "3:2", "3:4", "4:3", "9:16", "16:9", "21:9"];
+  const videoRatios = ["16:9", "9:16"];
+  const availableRatios = selectedModel === AIModelId.VEO ? videoRatios : imageRatios;
+
+  // Reset default ratio when switching models if needed
+  useEffect(() => {
+     if (selectedModel === AIModelId.VEO && !videoRatios.includes(aspectRatio)) {
+         setAspectRatio("16:9");
+     }
+  }, [selectedModel]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -33,7 +47,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMessage, 
 
   const handleSend = () => {
     if (!input.trim()) return;
-    onSendMessage(input, selectedModel);
+    onSendMessage(input, selectedModel, isMediaModel ? { aspectRatio } : undefined);
     setInput('');
     if (inputRef.current) inputRef.current.style.height = 'auto';
   };
@@ -52,7 +66,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMessage, 
       
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto custom-scrollbar relative">
-        <div className="min-h-full pb-32">
+        <div className="min-h-full pb-32" ref={scrollRef}>
             {!hasMessages && renderEmptyState ? (
                 renderEmptyState()
             ) : (
@@ -72,8 +86,19 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMessage, 
                                 </div>
                             ) : (
                                 <div className="text-zinc-800 dark:text-zinc-200 font-sans text-sm leading-relaxed w-full">
-                                    {/* Render custom metadata content if exists (e.g. Generated Deck Card) */}
+                                    {/* Text Content */}
                                     {msg.content && <div className="markdown mb-2">{msg.content}</div>}
+                                    
+                                    {/* Media Assets (Image/Video) */}
+                                    {msg.metadata?.assetUrl && (
+                                        <div className="mt-2 rounded-xl overflow-hidden shadow-lg border border-zinc-200 dark:border-zinc-700">
+                                            {msg.metadata.type === 'image_generated' ? (
+                                                <img src={msg.metadata.assetUrl} alt="Generated Asset" className="w-full h-auto" />
+                                            ) : msg.metadata.type === 'video_generated' ? (
+                                                <video src={msg.metadata.assetUrl} controls className="w-full h-auto" />
+                                            ) : null}
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -107,9 +132,29 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMessage, 
       <div className="absolute bottom-6 left-0 right-0 px-4 flex justify-center z-20">
         <div className="w-full max-w-3xl bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-200 dark:border-zinc-700 rounded-3xl shadow-2xl p-2 flex flex-col gap-2 transition-all duration-300 focus-within:ring-2 focus-within:ring-primary-500/20 focus-within:border-primary-500/50">
             
-            {/* Model Selector inside Input */}
-            <div className="px-2 pt-1">
+            {/* Model & Aspect Ratio Selector */}
+            <div className="px-2 pt-1 flex items-center gap-2">
                 <ModelSelector selectedModel={selectedModel} onSelect={setSelectedModel} />
+                
+                {isMediaModel && (
+                    <div className="relative group">
+                        <button className="flex items-center gap-2 bg-white hover:bg-zinc-50 px-3 py-2 rounded-md cursor-pointer transition-all border border-zinc-200 hover:border-zinc-300 shadow-sm">
+                            <Ratio size={14} className="text-zinc-500" />
+                            <span className="text-sm font-medium text-zinc-700 font-sans">{aspectRatio}</span>
+                        </button>
+                        <div className="absolute bottom-full left-0 mb-2 w-32 bg-white rounded-lg shadow-xl border border-zinc-200 p-1 hidden group-hover:block animate-in fade-in zoom-in-95 duration-150 origin-bottom-left">
+                            {availableRatios.map(r => (
+                                <button 
+                                    key={r}
+                                    onClick={() => setAspectRatio(r)}
+                                    className={`w-full text-left px-3 py-2 text-xs font-bold font-header hover:bg-zinc-50 rounded-md ${aspectRatio === r ? 'text-primary-600 bg-primary-50' : 'text-zinc-600'}`}
+                                >
+                                    {r}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
 
             <div className="flex items-end gap-2 px-2 pb-1">
@@ -122,7 +167,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMessage, 
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Describe the presentation you want to build..."
+                    placeholder={isMediaModel ? "Describe the image or video you want to generate..." : "Describe the presentation..."}
                     className="flex-1 bg-transparent border-none focus:ring-0 py-3 text-base text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 font-sans resize-none max-h-[120px]"
                     rows={1}
                 />

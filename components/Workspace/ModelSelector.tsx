@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { AIModelId, ModelMetadata } from '../../types';
-import { Cpu, Zap, Brain } from 'lucide-react';
+import { Cpu, Zap, Brain, Image, Video } from 'lucide-react';
 
 interface ModelSelectorProps {
   selectedModel: AIModelId;
@@ -8,10 +9,11 @@ interface ModelSelectorProps {
 }
 
 export const models: ModelMetadata[] = [
-  { id: AIModelId.GEMINI_FLASH, name: 'Gemini 2.5 Flash', provider: 'Google', description: 'Fast, Efficient, Multimodal', latency: 'Low', costPerToken: 1 },
-  { id: AIModelId.GEMINI_PRO, name: 'Gemini 3 Pro', provider: 'Google', description: 'Deep Reasoning, Complex Tasks', latency: 'Medium', costPerToken: 3 },
-  { id: AIModelId.CLAUDE_SONNET, name: 'Claude 3.5 Sonnet', provider: 'Anthropic', description: 'Nuanced Creative Writing', latency: 'Medium', costPerToken: 3 },
-  { id: AIModelId.GPT_4O, name: 'GPT-4o', provider: 'OpenAI', description: 'General Purpose Intelligence', latency: 'Medium', costPerToken: 4 },
+  { id: AIModelId.GEMINI_FLASH, name: 'Gemini 2.5 Flash', provider: 'Google', description: 'Balanced Performance', latency: 'Low', costPerToken: 1 },
+  { id: AIModelId.GEMINI_FLASH_LITE, name: 'Gemini 2.5 Flash Lite', provider: 'Google', description: 'Fastest Responses', latency: 'Low', costPerToken: 0.5 },
+  { id: AIModelId.GEMINI_PRO, name: 'Gemini 3 Pro', provider: 'Google', description: 'Thinking Mode (Reasoning)', latency: 'Medium', costPerToken: 3 },
+  { id: AIModelId.GEMINI_IMAGE, name: 'Gemini 3 Pro Image', provider: 'Google', description: 'High Fidelity Images', latency: 'Medium', costPerToken: 2 },
+  { id: AIModelId.VEO, name: 'Veo 3.1 Video', provider: 'Google', description: 'Fast Video Generation', latency: 'High', costPerToken: 10 },
 ];
 
 const ModelSelector: React.FC<ModelSelectorProps> = ({ selectedModel, onSelect }) => {
@@ -44,7 +46,9 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ selectedModel, onSelect }
             <div className={`mt-0.5 p-1.5 rounded-md border ${
                 selectedModel === model.id ? 'bg-white border-primary-200 text-primary-600' : 'bg-zinc-100 border-zinc-200 text-zinc-500'
             }`}>
-                {model.id === AIModelId.GEMINI_PRO ? <Brain size={14} /> : <Zap size={14} />}
+                {model.id === AIModelId.GEMINI_PRO ? <Brain size={14} /> : 
+                 model.id === AIModelId.GEMINI_IMAGE ? <Image size={14} /> :
+                 model.id === AIModelId.VEO ? <Video size={14} /> : <Zap size={14} />}
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between">

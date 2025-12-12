@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ArrowRight, User, Briefcase, Layers, Check } from 'lucide-react';
 import { MockFirebase } from '../../services/mockFirebase';
@@ -38,10 +39,10 @@ const OnboardingView: React.FC<OnboardingProps> = ({ onComplete }) => {
                 </div>
 
                 <div className="mt-6 mb-8 text-center">
-                    <div className="w-14 h-14 bg-zinc-900 dark:bg-white rounded-2xl flex items-center justify-center text-white dark:text-zinc-900 font-display font-bold text-xl mx-auto mb-6 shadow-lg">
+                    <div className="w-14 h-14 bg-zinc-900 dark:bg-white rounded-2xl flex items-center justify-center text-white dark:text-zinc-900 font-display font-medium tracking-[-0.04em] text-xl mx-auto mb-6 shadow-lg">
                         D
                     </div>
-                    <h2 className="text-2xl font-display font-bold text-zinc-900 dark:text-white mb-2">
+                    <h2 className="text-2xl font-display font-medium tracking-[-0.04em] text-zinc-900 dark:text-white mb-2">
                         {step === 1 && "Let's set up your profile"}
                         {step === 2 && "What is your role?"}
                         {step === 3 && "Name your Devspace"}
@@ -83,7 +84,7 @@ const OnboardingView: React.FC<OnboardingProps> = ({ onComplete }) => {
                                         : 'bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600'
                                     }`}
                                 >
-                                    <span className={`block text-sm font-bold font-display ${role === r ? 'text-primary-700 dark:text-primary-400' : 'text-zinc-700 dark:text-zinc-300'}`}>{r}</span>
+                                    <span className={`block text-sm font-bold font-display tracking-[-0.04em] ${role === r ? 'text-primary-700 dark:text-primary-400' : 'text-zinc-700 dark:text-zinc-300'}`}>{r}</span>
                                 </button>
                             ))}
                         </div>

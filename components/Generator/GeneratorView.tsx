@@ -30,13 +30,13 @@ const GeneratorView: React.FC<GeneratorViewProps> = ({ messages, onSendMessage, 
                  content: (
                      <div className="w-full">
                          <p className="mb-4">{msg.content}</p>
-                         <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl p-6 shadow-lg max-w-sm hover:border-primary-500 transition-colors group cursor-pointer" onClick={onEditDeck}>
+                         <div className="glass-card bg-white/80 dark:bg-zinc-900/80 rounded-2xl p-6 shadow-lg max-w-sm hover:border-primary-500 transition-all duration-300 group cursor-pointer hover:scale-[1.02]" onClick={onEditDeck}>
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="w-12 h-12 bg-primary-50 dark:bg-primary-900/20 text-primary-500 rounded-xl flex items-center justify-center">
                                     <Sparkles size={20} className="animate-pulse" />
                                 </div>
                                 <div>
-                                    <h3 className="font-display font-bold text-zinc-900 dark:text-white">Deck Ready</h3>
+                                    <h3 className="font-display font-medium tracking-[-0.04em] text-zinc-900 dark:text-white">Deck Ready</h3>
                                     <p className="text-xs text-zinc-500 font-header">{msg.metadata.slideCount} Slides Generated</p>
                                 </div>
                             </div>
@@ -54,10 +54,10 @@ const GeneratorView: React.FC<GeneratorViewProps> = ({ messages, onSendMessage, 
     const renderEmptyState = () => (
         <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 animate-fade-in">
             <div className="mb-8 text-center space-y-3 max-w-lg">
-                <div className="w-16 h-16 bg-zinc-900 dark:bg-white rounded-3xl flex items-center justify-center text-white dark:text-zinc-900 shadow-xl mx-auto mb-6 transform -rotate-6">
+                <div className="w-16 h-16 bg-gradient-to-br from-zinc-800 to-black dark:from-white dark:to-zinc-200 rounded-3xl flex items-center justify-center text-white dark:text-zinc-900 shadow-xl mx-auto mb-6 transform -rotate-6 border border-white/20">
                     <Zap size={32} className="fill-current" />
                 </div>
-                <h1 className="text-4xl font-display font-bold text-zinc-900 dark:text-white">What are we building?</h1>
+                <h1 className="text-4xl font-display font-medium tracking-[-0.04em] text-zinc-900 dark:text-white drop-shadow-sm">What are we building?</h1>
                 <p className="text-zinc-500 dark:text-zinc-400 text-lg font-header">Start a conversation to generate from scratch, or choose a template below.</p>
             </div>
 
@@ -66,15 +66,15 @@ const GeneratorView: React.FC<GeneratorViewProps> = ({ messages, onSendMessage, 
                     <button 
                         key={template.id}
                         onClick={() => onSelectTemplate(template)}
-                        className="group flex flex-col text-left bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-primary-500 dark:hover:border-primary-500 p-4 rounded-2xl transition-all hover:shadow-xl hover:-translate-y-1 duration-300"
+                        className="group flex flex-col text-left glass-card bg-white/40 dark:bg-zinc-900/40 hover:bg-white/60 dark:hover:bg-zinc-800/60 p-4 rounded-2xl transition-all hover:shadow-2xl hover:-translate-y-2 duration-300"
                     >
-                        <div className={`h-24 w-full rounded-xl ${template.thumbnailColor} mb-4 relative overflow-hidden`}>
+                        <div className={`h-24 w-full rounded-xl ${template.thumbnailColor} mb-4 relative overflow-hidden shadow-inner`}>
                              <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent"></div>
                              <LayoutTemplate className="absolute bottom-2 right-2 text-white/50" size={20} />
                         </div>
-                        <h3 className="font-display font-bold text-zinc-900 dark:text-white text-sm mb-1">{template.title}</h3>
+                        <h3 className="font-display font-medium tracking-[-0.04em] text-zinc-900 dark:text-white text-sm mb-1">{template.title}</h3>
                         <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium font-header leading-relaxed line-clamp-2">{template.description}</p>
-                        <div className="mt-4 flex items-center gap-1 text-[10px] font-bold text-primary-600 uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="mt-4 flex items-center gap-1 text-[10px] font-bold text-primary-600 uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300">
                             Use Template <ArrowRight size={10} />
                         </div>
                     </button>
